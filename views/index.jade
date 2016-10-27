@@ -1,0 +1,45 @@
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}
+    .controls
+      input.field(style='width:350px;', id='to_send', name='to_send', value='Write something.')
+      input.send(type='button', value='send', onclick="webSocketTest()")
+    h2 MongoDB configuration
+    p Download MongDB from&nbsp;
+      a(href='https://www.mongodb.org') www.mongodb.org
+      |  and extract them in a folder.
+    p Create a folder for the storage (default: /data/db).
+    p Execute MongoDB daemon (from the MongoDB bin folder):
+    pre mongod --dbpath /data/db
+    p To look at the inserted rows, execute in the MongoDB client (bin/mongo):
+    pre use lodelogs
+      | db.logs.find().pretty()
+    p Sample output:
+    pre $ mongo
+      | MongoDB shell version: 3.0.3
+      | connecting to: test
+      | > use lodelogs
+      | switched to db lodelogs
+      | > db.logs.find().pretty()
+      | { "_id" : ObjectId("55774c87812383e85896814f"), "data" : "Write something." }
+      | >
+
+
+
+
+block scripts
+  script(type='text/javascript', src='/javascripts/socket.io.js')
+  script(type='text/javascript').
+    function webSocketTest(){
+      var socket = io('http://localhost:3000/trackevent');
+      socket.emit('log', {
+        type: 'TEST',
+        sessionId: 0,
+        userName: 'test',
+        value1: document.getElementById('to_send').value,
+        value2: '',
+        timestamp: new Date()
+      });
+    }
