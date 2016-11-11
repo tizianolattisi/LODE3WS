@@ -50,15 +50,15 @@ checkAndDeleteContainer 'lode3mongo'
 checkAndDeleteContainer 'lode3nodeapp'
 
 # Setup
-read -p "Mongodb data directory on the host system [~/_LODE/datadir]: " datadir
-datadir=${datadir:-~/_LODE/datadir}
+read -p "Mongodb data directory on the host system [~/_LODE3/datadir]: " datadir
+datadir=${datadir:-~/_LODE3/datadir}
 checkAndDeleteDirectory "$datadir"
-read -p "Local folder share to mount as LODE3 distribution contents [~/_LODE/public]: " public
-public=${public:-~/_LODE/public}
-checkAndDeleteDirectory "$public"
+read -p "Local folder share to mount as LODE3 distribution contents [~/_LODE3/lectures]: " lectures
+lectures=${lectures:-~/_LODE3/lectures}
+checkAndDeleteDirectory "$lectures"
 
 # Node application to deploy
-cp -R public/* $public
+#cp -R public/* $public
 
 # mongodb
 docker run --name lode3mongo -v "$datadir:/data/db" -d -p 27017:27017 mongo:3.3
@@ -66,4 +66,4 @@ docker run --name lode3mongo -v "$datadir:/data/db" -d -p 27017:27017 mongo:3.3
 # lode3ws
 docker build --rm=true --file=docker/Dockerfile -t unitn.it/lode3node .
 #docker run -v "$public:/usr/src/app/public" -d --name lode3nodeapp --link lode3mongo -p 3000:3000 unitn.it/lode3node
-docker run -v "$public:/usr/src/app/public"  --name lode3nodeapp --link lode3mongo -p 3000:3000 -i -t unitn.it/lode3node
+docker run -v "$(pwd)/public:/usr/src/app/public" -v "$lectures:/usr/src/app/public/lectures" --name lode3nodeapp --link lode3mongo -p 3000:3000 -i -t unitn.it/lode3node
