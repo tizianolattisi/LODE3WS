@@ -22,29 +22,19 @@
     padding-left: 0;
 }
 
-.hero-unit h1 {
-    font-size: 40px;
-}
-.hero-unit {
-    padding: 10px 30px 5px;
-}
-
 .row {
     margin-bottom: 10px;
 }
 
-#row-1 {
-    /* height: 350px; fix safari - disabled*/
-}
-
 #header {
-    background-image: url("../img/logo.png");
+    background-image: url("../images/logo.png");
     background-position: 98% 10px;
     background-repeat: no-repeat;
     border-radius: 6px 6px 6px 6px;
-    margin-bottom: 0;
+    margin-bottom: 1px;
     margin-top: 5px;
     padding: 1px 30px;
+    background-color: #EEEEEE;
 }
 
 #slide {
@@ -107,6 +97,9 @@
     border-radius: 3px 3px 3px 3px;
 
 }
+.button:focus {
+    outline: none;
+}
 .btn-group {
     margin-bottom: 6px;
 }
@@ -135,14 +128,13 @@
 
 }
 
-#row-help {
+#row-help, #row-about {
     display: none;
-    margin: 0 0 10px;
     padding: 10px;
     border-radius: 3px 3px 3px 3px;
     color: #000;
-
 }
+
 #row-navigation {
     padding: 0;
 }
@@ -254,56 +246,3 @@
     width: 5px;
     z-index: 20;
 }
-
-
-
-/*div:-webkit-full-screen
-{
-    float: none;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    border: 0 none;
-    background-color: #f00;
-}
-
-div:-moz-full-screen
-{
-    float: none;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    border: 0 none;
-}
-
-div:-ms-full-screen
-{
-    float: none;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    border: 0 none;
-}
-
-div:-o-full-screen
-{
-    float: none;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    border: 0 none;
-}
-
-div:full-screen
-{
-    float: none;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    border: 0 none;
-}*/

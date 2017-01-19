@@ -1,35 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>LODE HTML5 Frontend</title>
-    <script type = 'text/javascript' src = "javascripts/popcorn-complete.min.js"></script>
-    <script type = 'text/javascript' src = "javascripts/jquery.min.js"></script>
-    <script type = 'text/javascript' src = 'javascripts/jquery.iosslider.min.js'></script>
-    <script type = 'text/javascript' src = 'javascripts/bigscreen.min.js'></script>
-    <script type = 'text/javascript' src = 'javascripts/socket.io.js'></script>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link href="stylesheets/bootstrap.css" rel="stylesheet">
-    <link href="stylesheets/bootstrap-responsive.css" rel="stylesheet">
+    <script type = 'text/javascript' src = "js/popcorn-complete.min.js"></script>
+    <script type = 'text/javascript' src = "js/jquery-3.1.1.js"></script>
 
-    <link href="stylesheets/custom.css" rel="stylesheet">
-
-    <script type="text/javascript" src="javascripts/tracker.js"></script>
-    <script type="text/javascript" >
-        // TODO: catch id and name
-        //var sessionId = '123';
-        var userName = 'pippo';
-    </script>
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/custom.css" rel="stylesheet">
 
     <script type="text/javascript" >
+
         var data = new Object();
-        data.slides = new Array();
         data.camvideo = new Object();
         data.camvideo.sources = new Array();
         data.pcvideo = new Object();
         data.pcvideo.sources = new Array();
-        var layout = "both";
 
         $.urlParam = function(name){
             var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
@@ -41,13 +28,8 @@
             }
         }
 
-
         $(document).ready(function()
         {
-            $.browser.chrome = /chrome/.test(navigator.userAgent.toLowerCase());
-            //                if($.browser.chrome){
-            //                    $("#container").html("<div class=\"hero-unit\"><h1>Chrome not supported.</h1><p>Chrome won't load load local xml files due to security policy.</p></div>");
-            //                } else {
 
             var camPopcorn = Popcorn( "#camplayer" );
             var pcPopcorn = Popcorn( "#pcplayer" );
@@ -106,141 +88,41 @@
 
                 $('#progress-time-duration').text(timeFormat(data.camvideo.duration));
 
-
-                /*                  *
-                 *      SLIDES      *
-                 *                  */
-
-                //fetch and load slides
-                $(d).find('slide').each(function(){
-                    var slide = new Object();
-                    var $element = $(this);
-                    slide.title = $element.find('titolo').text();
-                    slide.image = contentFolder+"/"+$element.find('immagine').text();
-                    slide.time = $element.find('tempo').text();
-                    data.slides.push(slide);
-                });
-
-                //calculate slide ends
-                var endTime = Math.round(getCamPlayer().duration);
-                for(var i=data.slides.length; i>0; i--) {
-                    var slide = data.slides[i-1];
-                    slide.end = endTime;
-                    endTime = slide.time;
-                }
-
-
-                if(data.slides.length > 0) {
-                    //load first slide
-                    $("#slides").html("<img id=\"slide\" alt=\"slide\" src=\""+data.slides[0].image+"\" data-slide=\"0\" data-slide-video=\"0\"/>");
-
-                    //add slides to navigation
-                    //group by 4 elements
-                    var j,z,elements;
-                    var count = 0;
-                    var chunk = 4;
-                    for (j=0,z=data.slides.length; j<z; j+=chunk) {
-                        elements = data.slides.slice(j,j+chunk);
-                        $('#navigation').append("<div class=\"slide\"><ul class=\"navigation-ul thumbnails\" id=\"navigation-"+j+"\">");
-                        for(var i=0; i<elements.length; i++) {
-                            var slide = elements[i];
-                            $('#navigation-'+j).append("<li class=\"\" id=\"nav-"+count+"\"><a class=\"thumbnail\" href=\"javascript:slideJump("+count+");\"><img src=\""+slide.image+"\" /><h4>"+(count+1)+". "+slide.title+"</h4></a></li>");
-                            var videoDuration=data.video.duration;
-                            var slideProgressPosition = parseInt((100 * parseInt(slide.time)) / videoDuration);
-
-                            $("#progress-bar").append("<span id=\"nav-"+count+"\" class=\"progress-bar-chapter\" style=\"left: "+slideProgressPosition+"%\"></span>");
-
-                            camPopcorn.code({
-                                start: parseInt(slide.time),
-                                end: parseInt(slide.end),
-                                slideNumber: count,
-                                onStart: function(options) {
-                                    playerSlideHandler(options.slideNumber);
-                                },
-                                onEnd: function(options) {
-                                }
-                            });
-                            pcPopcorn.code({
-                                start: parseInt(slide.time),
-                                end: parseInt(slide.end),
-                                slideNumber: count,
-                                onStart: function(options) {
-                                    playerSlideHandler(options.slideNumber);
-                                },
-                                onEnd: function(options) {
-                                }
-                            });
-                            count++;
-                        }
-                        $('#navigation').append("</ul></div>");
-                    }
-                    //set first slide active
-                    $("#nav-0 a").addClass("active");
-                    $('.iosSlider').iosSlider({
-                        snapToChildren: false,
-                        scrollbar: true,
-                        scrollbarHide: false,
-                        desktopClickDrag: true,
-                        scrollbarLocation: 'bottom',
-                        scrollbarHeight: '12px',
-                        scrollbarDrag: true,
-                        responsiveSlideContainer: true,
-                        responsiveSlides: false
-                    });
-                }
-
-                //temporary resize player with slide dimensions
-                //                    $("#cell-player").height('100%');
-
-                $("#cell-player").height(430);
-
-                //                    video.height($("#slide").height());
-                //                    video.width($("#slide").width());
-
+                //$("#cell-player-pc").height(215);
+                //$("#cell-player-cam").height(215);
 
                 //video controls and callback
 
                 //set progress bar and controls
-                camVideo.on('loadedmetadata', function() {
+                pcVideo.on('loadedmetadata', function() {
                     $('#progress-time-current').text(timeFormat(0));
-                    //                        $('#progress-time-duration').text(timeFormat(video[0].duration));
-                    //start to get video buffering data
-                    //setTimeout(startBuffer(), 150);
-                    //
-                    //remove default control when JS loaded
-                    camVideo[0].removeAttribute("controls");
-
-
+                    pcVideo[0].removeAttribute("controls");
                 });
-
-                camVideo.on('loadeddata', function() {
+                pcVideo.on('loadeddata', function() {
                     //resize player with actual dimensions
-                    fixPlayerSize();
-                    //                        video.height("auto");
-                    //                        video.width("auto");
+                    //fixPlayerSize();
                 });
-
                 //display current video play time
-                camVideo.on('timeupdate', function() {
-                    var currentPos = camVideo[0].currentTime;
-                    var maxduration = camVideo[0].duration;
+                pcVideo.on('timeupdate', function() {
+                    var currentPos = pcVideo[0].currentTime;
+                    var maxduration = pcVideo[0].duration;
                     var perc = 100 * currentPos / maxduration;
                     $('#progress-bar-time').css('width',perc+'%');
                     $('#progress-time-current').text(timeFormat(currentPos));
                 });
 
-                camVideo.on('click', function() {
+                pcVideo.on('click', function() {
                     playerPlayPause();
                 } );
 
-                //video ended event
-                camVideo.on('ended', function() {
+                //video event
+                pcVideo.on('ended', function() {
                     playerPause();
                 });
-                camVideo.on('play', function() {
+                pcVideo.on('play', function() {
                     playPauseButtonCallback();
                 });
-                camVideo.on('pause', function() {
+                pcVideo.on('pause', function() {
                     playPauseButtonCallback();
                 });
 
@@ -249,15 +131,15 @@
                 var timeDrag = false;	/* check for drag event */
                 $('#progress-bar').on('mousedown', function(e) {
                     timeDrag = true;
-                    trackEvent("player", "jumpfrom", camVideo[0].currentTime);
+                    //trackEvent("player", "jumpfrom", pcVideo[0].currentTime);
                     updatebar(e.pageX);
-                    trackEvent("player", "jumpstartdrag", camVideo[0].currentTime);
+                    //trackEvent("player", "jumpstartdrag", pcVideo[0].currentTime);
                 });
                 $(document).on('mouseup', function(e) {
                     if(timeDrag) {
                         timeDrag = false;
                         updatebar(e.pageX);
-                        trackEvent("player", "jumpdrop", camVideo[0].currentTime);
+                        //trackEvent("player", "jumpdrop", pcVideo[0].currentTime);
                     }
                 });
                 $(document).on('mousemove', function(e) {
@@ -271,7 +153,7 @@
                     //calculate drag position
                     //and update video currenttime
                     //as well as progress bar
-                    var maxduration = camVideo[0].duration;
+                    var maxduration = pcVideo[0].duration;
                     var position = x - progress.offset().left;
                     var percentage = 100 * position / progress.width();
                     if(percentage > 100) {
@@ -282,23 +164,28 @@
                     }
                     $('#progress-bar-time').css('width',percentage+'%');
                     var currentTime = maxduration * percentage / 100;
+                    pcVideo[0].currentTime = currentTime;
                     camVideo[0].currentTime = currentTime;
                 };
-
             });
-
-            //                }
-
-
         });
+
+
+        function getCamPlayer() {
+            return document.getElementById("camplayer");
+        }
+        function getPCPlayer() {
+            return document.getElementById("pcplayer");
+        }
 
         function fixPlayerSize() {
             //workaround for safari, broken height
             if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1) {
-                $("#cell-player").height(430);
+                $("#cell-player-pc").height(430);
+                $("#cell-player-cam").height(430);
             } else {
-                $("#cell-player").css({height: ''});
-
+                $("#cell-player-pc").css({height: ''});
+                $("#cell-player-cam").css({height: ''});
             }
         }
 
@@ -308,54 +195,20 @@
             return m+":"+s;
         };
 
-        //display video buffering bar
-        function startBuffer() {
-            alert("buffer");
-            var video = $("#camPlayer");
-            var currentBuffer = video[0].buffered.end(0);
-            var maxduration = video[0].duration;
-            var perc = 100 * currentBuffer / maxduration;
-            $('#progress-bar-buffer').css('width',perc+'%');
-
-            if(currentBuffer < maxduration) {
-                setTimeout(startBuffer, 500);
-            }
-        };
-
-        function getCamPlayer() {
-            return document.getElementById("camplayer");
+        // Player functions
+        function playerPlay() {
+            //trackEvent("player", "play");
+            getCamPlayer().play();
+            return getPCPlayer().play();
         }
-        function getPCPlayer() {
-            return document.getElementById("pcplayer");
+        function playerPause() {
+            //trackEvent("player", "pause");
+            getCamPlayer().pause();
+            return getPCPlayer().pause();
         }
-
-        function playerSlideHandler(id) {
-            var current= $("#slide").attr("data-slide");
-            var current_video= $("#slide").attr("data-slide-video");
-            $("#slide").attr("data-slide-video",id);
-            if(current == current_video) {
-                slideLoad(id);
-            } else {
-                $("#buttonSlideCurrent").removeClass("disabled");
-            }
-
-            thumbnailsActive(id);
-
-        }
-
-        function playerJump(pos) {
-            pos=(+pos)+(+0.1);
-            var camVideo = getCamPlayer();
-            camVideo.currentTime = parseFloat(pos);
-            var pcVideo = getPCPlayer();
-            pcVideo.currentTime = parseFloat(pos);
-            camVideo.play();
-            pcVideo.play();
-        }
-
         function playerPlayPause() {
-            var camVideo = getCamPlayer();
-            if(camVideo.paused || camVideo.ended) {
+            var pcVideo = getPCPlayer();
+            if(pcVideo.paused || pcVideo.ended) {
                 playerPlay();
             }
             else {
@@ -363,314 +216,55 @@
             }
             playPauseButtonCallback();
         }
-
-        function playPauseButtonCallback() {
-            var camVideo = getCamPlayer();
-            if(camVideo.paused || camVideo.ended) {
-                $("#buttonPlayerPlay").removeClass("active");
-                $("#buttonPlayerPlay").text("Play");
-            } else {
-                $("#buttonPlayerPlay").addClass("active");
-                $("#buttonPlayerPlay").text("Pause");
-            }
-        }
-
-        function playerPlay() {
-            trackEvent("player", "play");
-            getPCPlayer().play();
-            return getCamPlayer().play();
-        }
-
-        function playerPause() {
-            trackEvent("player", "pause");
-            getPCPlayer().pause();
-            return getCamPlayer().pause();
-        }
-
-        function playerMuteToggle() {
-            var muted = getPlayer().muted;
-            if(muted) {
-                trackEvent("player", "mute", "off");
-                getPlayer().muted = false;
-            } else {
-                trackEvent("player", "mute", "on");
-                getPlayer().muted = true;
-            }
-            return getPlayer().muted;
-        }
-
         function playerSpeed(factor) {
+            if ( factor==1.0 ) {
+                $("#buttonPlayerSpeed10").addClass("active");
+                $("#buttonPlayerSpeed13").removeClass("active");
+                $("#buttonPlayerSpeed20").removeClass("active");
+            } else if( factor==1.3 ){
+                $("#buttonPlayerSpeed10").removeClass("active");
+                $("#buttonPlayerSpeed13").addClass("active");
+                $("#buttonPlayerSpeed20").removeClass("active");
+
+            } else if( factor==2.0 ){
+                $("#buttonPlayerSpeed10").removeClass("active");
+                $("#buttonPlayerSpeed13").removeClass("active");
+                $("#buttonPlayerSpeed20").addClass("active");
+            }
             var camVideo = getCamPlayer();
-            camVideo.defaultPlaybackRate = parseFloat(factor);
-            camVideo.playbackRate = parseFloat(factor);
+            var playbackRate = parseFloat(factor);
+            camVideo.defaultPlaybackRate = playbackRate;
+            camVideo.playbackRate = playbackRate;
             var pcVideo = getPCPlayer();
-            pcVideo.defaultPlaybackRate = parseFloat(factor);
-            pcVideo.playbackRate = parseFloat(factor);
+            pcVideo.defaultPlaybackRate = playbackRate;
+            pcVideo.playbackRate = playbackRate;
             camVideo.play();
             pcVideo.play();
         }
-
-        function playerSpeedToggle() {
-            var status = false;
+        function playerRelativeJump(delta) {
+            try {
+                var video = getPCPlayer();
+                var currentPos = video.currentTime;
+                var maxduration = video.duration;
+                currentPos = currentPos + delta;
+                if (currentPos < 0)
+                    currentPos = 0;
+                else if (currentPos > maxduration)
+                    currentPos = maxduration;
+                playerJump(currentPos);
+            } catch (err) {
+                alert(err);
+            }
+        }
+        function playerJump(pos) {
+            pos=(+pos)+(+0.1);
+            var newPos = parseFloat(pos);
             var camVideo = getCamPlayer();
-            var factor = camVideo.defaultPlaybackRate;
-            if( factor > 1.0) {
-                trackEvent("player", "speed", "off");
-                playerSpeed(1.0);
-            } else {
-                trackEvent("player", "speed", "on");
-                playerSpeed(2.0);
-                status = true;
-            }
-            return status;
-        }
-
-        function slideGet(id) {
-            if(data.slides.length >=id) {
-                return data.slides[id];
-            }
-            return false;
-        }
-
-        function slideJump(id) {
-            trackEvent("slides", "select", id+1);
-            playerJump((slideGet(id)).time);
-            setTimeout(navigationHide,600);
-        }
-
-        function slideLoad(id) {
-            var slide = slideGet(id);
-            $("#slide").attr("src",slide.image).stop(true,true).hide().fadeIn();
-            $("#slide").attr("data-slide",id);
-            if($("#slide").attr("data-slide-video") == id) {
-                $("#buttonSlideCurrent").addClass("disabled");
-            } else {
-                $("#buttonSlideCurrent").removeClass("disabled");
-            }
-            if(id>0) {
-                $("#buttonSlidePrev").removeClass("disabled");
-            } else {
-                $("#buttonSlidePrev").addClass("disabled");
-            }
-            if(id< +(data.slides.length -1)) {
-                $("#buttonSlideNext").removeClass("disabled");
-            } else {
-                $("#buttonSlideNext").addClass("disabled");
-            }
-        }
-        function thumbnailsActive(id) {
-            $("#navigation li a").removeClass("active");
-            $("#nav-"+id+" a").addClass("active");
-            var numerator = (+id);
-            var remainder = numerator % 4;
-            var quotient = ( numerator - remainder ) / 4;
-            quotient = Math.floor( quotient );
-            var slidePage = +(+quotient)+(+1);
-            $('.iosSlider').iosSlider('goToSlide', slidePage);
-        }
-
-        function slideNext() {
-            trackEvent("slides", "next");
-            var id= $("#slide").attr("data-slide");
-            var next=(+id)+(+1);
-            if(next < data.slides.length) {
-                slideLoad(next);
-            }
-        }
-        function slidePrev() {
-            trackEvent("slides", "prev");
-            var id= $("#slide").attr("data-slide");
-            var prev=(+id)-(+1);
-            if(prev >=0) {
-                slideLoad(prev);
-            }
-        }
-        function slideCurrent() {
-            trackEvent("slides", "current");
-            var id= $("#slide").attr("data-slide-video");
-            slideLoad(id);
-        }
-
-        function slideFullToggle() {
-            if(layout != "fullSlide" ) {
-                layoutChange("fullSlide");
-                return true;
-            } else {
-                layoutChange("both");
-                return false;
-            }
-        }
-        function playerFullToggle() {
-            if(layout != "fullPlayer" ) {
-                layoutChange("fullPlayer");
-                return true;
-            } else {
-                layoutChange("both");
-                return false;
-            }
-        }
-
-        function layoutChange(layoutNew) {
-            if(layout != layoutNew ) {
-                //hide menus
-                navigationHide();
-                helpHide();
-                //change layout
-                if(layoutNew == "fullPlayer") {
-                    trackEvent("screen", "layout", "p");
-                    slideHide();
-                    playerShow();
-                    playerFull();
-                } else if(layoutNew == "fullSlide") {
-                    trackEvent("screen", "layout", "s");
-                    playerHide();
-                    slideShow();
-                    slideFull();
-                }  else if(layoutNew == "both") {
-                    trackEvent("screen", "layout", "ps");
-                    playerNormal();
-                    playerShow();
-                    slideNormal();
-                    slideShow();
-                }
-
-                layout = layoutNew;
-                layoutChangeButtonCallback();
-                layoutSelectorHide();
-            }
-        }
-
-        function layoutChangeButtonCallback() {
-            $("#layoutSelectorPlayerFull").removeClass("active");
-            $("#layoutSelectorSlideFull").removeClass("active");
-            $("#layoutSelectorBoth").removeClass("active");
-            $("#buttonSlideFullscreen").removeClass("active");
-            $("#buttonPlayerFullscreen").removeClass("active");
-
-
-            if(layout == "fullPlayer") {
-                $("#buttonPlayerFullscreen").addClass("active");
-                $("#layoutSelectorPlayerFull").addClass("active");
-
-                //scroll viewPort to hide header
-                window.scrollTo(0, 108);
-            } else if(layout == "fullSlide") {
-                $("#buttonSlideFullscreen").addClass("active");
-                $("#layoutSelectorSlideFull").addClass("active");
-
-                //scroll viewPort to hide header
-                window.scrollTo(0, 108);
-            } else if(layout == "both") {
-                $("#buttonSlideFullscreen").removeClass("active");
-                $("#buttonPlayerFullscreen").removeClass("active");
-                $("#layoutSelectorBoth").addClass("active");
-
-            }
-        }
-
-        function slideFull() {
-            $("#cell-slides").removeClass("span6 span2 span10 span12").addClass("span12");
-        }
-        function slideNormal() {
-            $("#cell-slides").removeClass("span6 span2 span10 span12").addClass("span6");
-        }
-        function slideSmall() {
-            $("#cell-slides").removeClass("span6 span2 span10 span12").addClass("span2");
-        }
-        function slideHide() {
-            $("#cell-slides").removeClass("span6 span2 span10 span12").addClass("span12").hide();
-        }
-        function slideShow() {
-            $("#cell-slides").show();
-        }
-
-        function playerFull() {
-            $("#cell-player").removeClass("span6 span2 span10 span12").addClass("span12").height('auto');
-        }
-        function playerNormal() {
-            $("#cell-player").removeClass("span6 span2 span10 span12").addClass("span6").height('auto');
-        }
-        function playerSmall() {
-            $("#cell-player").removeClass("span6 span2 span10 span12").addClass("span2").height('auto');
-        }
-        function playerHide() {
-            $("#cell-player").removeClass("span6 span2 span10 span12").addClass("span12").height(0);
-        }
-        function playerShow() {
-            fixPlayerSize();
-        }
-
-        function helpToggle() {
-            $("#row-help").slideToggle(400, function() {
-                if($("#row-help").css('display') == 'none') {
-                    $("#buttonHelpToggle").removeClass("active");
-                } else {
-                    $("#buttonHelpToggle").addClass("active");
-                }
-            });
-        }
-        function helpHide() {
-            $("#row-help").slideUp();
-            $("#buttonHelpToggle").removeClass("active");
-        }
-        function navigationToggle() {
-            $("#row-navigation").slideToggle(400, function() {
-                if($("#row-navigation").css('display') == 'none') {
-                    trackEvent("screen", "navigator", "off");
-                    $("#buttonNavigationToggle").removeClass("active");
-                } else {
-                    trackEvent("screen", "navigator", "on");
-                    $("#buttonNavigationToggle").addClass("active");
-                }
-            });
-        }
-        function navigationHide() {
-            $("#row-navigation").slideUp();
-            $("#buttonNavigationToggle").removeClass("active");
-        }
-        function headerHide() {
-            $("#header").hide();
-        }
-        function headerShow() {
-            $("#header").show();
-        }
-
-        function layoutSelectorToggle() {
-            $("#row-layout").slideToggle(400, function() {
-                if($("#row-layout").css('display') == 'none') {
-                    $("#buttonLayoutSelectorToggle").removeClass("active");
-                } else {
-                    $("#buttonLayoutSelectorToggle").addClass("active");
-                }
-            });
-        }
-        function layoutSelectorHide() {
-            $("#row-layout").slideUp();
-            $("#buttonLayoutSelectorToggle").removeClass("active");
-        }
-
-
-        function fullscreenToggle() {
-            var viewport = document.getElementById("viewport");
-            if (BigScreen.enabled) {
-                BigScreen.toggle(viewport, fullscreenOnEnter, fullscreenOnExit, fullscreenOnError);
-            }
-
-        }
-
-
-        function fullscreenOnEnter() {
-            trackEvent("screen", "fullscreen", "on");
-            headerHide();
-            $("#buttonFullscreenToggle").addClass("active");
-        }
-        function fullscreenOnExit() {
-            trackEvent("screen", "fullscreen", "off");
-            headerShow();
-            $("#buttonFullscreenToggle").removeClass("active");
-        }
-        function fullscreenOnError() {
-
+            camVideo.currentTime = newPos;
+            var pcVideo = getPCPlayer();
+            pcVideo.currentTime = newPos;
+            camVideo.play();
+            pcVideo.play();
         }
 
         function buttonPlayerPlay() {
@@ -679,148 +273,175 @@
         function buttonPlayerPause() {
             playerPause();
         }
-        function buttonPlayerSpeed() {
-            var status = playerSpeedToggle();
-            if(status) {
-                $("#buttonPlayerSpeed").addClass("active");
+
+        function playPauseButtonCallback() {
+            var pcVideo = getPCPlayer();
+            if(pcVideo.paused || pcVideo.ended) {
+                $("#buttonPlayerPlay").removeClass("active");
+                $("#buttonPlayerPlay").addClass("glyphicon-play");
+                $("#buttonPlayerPlay").removeClass("glyphicon-pause");
+                //$("#buttonPlayerPlay").text("Play");
             } else {
-                $("#buttonPlayerSpeed").removeClass("active");
+                $("#buttonPlayerPlay").addClass("active");
+                $("#buttonPlayerPlay").removeClass("glyphicon-play");
+                $("#buttonPlayerPlay").addClass("glyphicon-pause");
+                //$("#buttonPlayerPlay").text("Pause");
             }
         }
-        function buttonPlayerFullscreen() {
-            playerFullToggle();
+
+        function playerMuteToggle() {
+            getPCPlayer().muted = !getPCPlayer().muted
+            getCamPlayer().muted = !getCamPlayer().muted
+            //trackEvent("player", "mute", getCamPlayer().muted && "off" || "on");
+            return getPCPlayer().muted
         }
         function buttonPlayerMute() {
             var status = playerMuteToggle();
-            if(status) {
+            if (status) {
                 $("#buttonPlayerMute").addClass("active");
+                $("#buttonPlayerMute").removeClass("glyphicon-volume-up");
+                $("#buttonPlayerMute").addClass("glyphicon-volume-off");
             } else {
                 $("#buttonPlayerMute").removeClass("active");
+                $("#buttonPlayerMute").addClass("glyphicon-volume-up");
+                $("#buttonPlayerMute").removeClass("glyphicon-volume-off");
             }
         }
-        function buttonSlidePrev() {
-            slidePrev();
+
+        // Layout functions
+        function layout(d){
+            var classes = $("#cell-player-pc").attr('class').split(" ");
+            for( var i=0; i<classes.length; i++ ){
+                var className = classes[i];
+                if( className.startsWith('col-md-') ){
+                    var n = parseInt(className.substring(7));
+                    if( (d>0 && n<11) || (d<0 && n>1) ){
+                        $("#cell-player-pc").removeClass('col-md-'+n);
+                        $("#cell-player-pc").addClass('col-md-'+(n+d));
+                        $("#cell-player-cam").removeClass('col-md-'+(12-n));
+                        $("#cell-player-cam").addClass('col-md-'+(12-(n+d)));
+                    }
+                }
+            }
         }
-        function buttonSlideCurrent() {
-            slideCurrent();
+        function layoutPlus() {
+            layout(1);
         }
-        function buttonSlideFullscreen() {
-            slideFullToggle();
+        function layoutMinus() {
+            layout(-1);
         }
-        function buttonSlideNext() {
-            slideNext();
+
+        // help and about
+        function helpToggle() {
+            $("#row-help").slideToggle(400, function () {
+                if ($("#row-help").css('display') == 'none') {
+                    $("#buttonHelpToggle").removeClass("active");
+                } else {
+                    $("#buttonHelpToggle").addClass("active");
+                }
+            });
         }
-        function buttonNavigationToggle() {
-            navigationToggle();
+        function helpHide() {
+            $("#buttonHelpToggle").text("Help");
+            //$("#buttonHelpToggleSO").text("Help");
+            $("#row-help").slideUp();
+            //$("#buttonHelpToggle").removeClass("active");
         }
+        function aboutToggle() {
+            $("#row-about").slideToggle(400, function () {
+                if ($("#row-about").css('display') == 'none') {
+                    $("#buttonAboutToggle").removeClass("active");
+                } else {
+                    $("#buttonAboutToggle").addClass("active");
+                }
+            });
+        }
+        function aboutHide() {
+            $("#buttonAboutToggle").text("About Lode");
+            //$("#buttonHelpToggleSO").text("Help");
+            $("#row-about").slideUp();
+            //$("#buttonHelpToggle").removeClass("active");
+        }
+
         function buttonHelpToggle() {
             helpToggle();
         }
-        function buttonFullscreenToggle() {
-            fullscreenToggle();
+        function buttonAboutToggle() {
+            aboutToggle();
         }
-        function buttonLayoutSelectorToggle() {
-            layoutSelectorToggle();
-        }
+
     </script>
 
 </head>
 <body id="viewport">
-<div class="container" id="container">
-    <div class="hero-unit" id="header">
-        <h1 id="lecture">Html5 LODE Test</h1>
-        <p>
-            <span id="course">Development version - DEMO</span> -
-            <span id="lecturer">Development version - DEMO</span> -
-            <span id="url"></span>
 
+<div class="container" id="container">
+    <div class="row" id="header">
+        <h1 id="lecture">Lecture title</h1>
+        <p>
+            <span id="help-control" class="btn-group">
+                <button id="buttonAboutToggle" class="btn btn-small btn-inverse glyphicon glyphicon-info-sign" type="button" onclick="buttonAboutToggle()"></button>
+                <button id="buttonHelpToggle" class="btn btn-small btn-inverse glyphicon glyphicon-question-sign" type="button" onclick="buttonHelpToggle()"></button>
+            </span>
+            <span>&nbsp;</span>
+            <span id="course"> -- </span> -
+            <span id="professor"> -- </span> <span id="url"></span>-
+            <span style="align-content: flex-end">&nbsp;</span>
         </p>
     </div>
-    <div id="content">
-        <div class="row" id="row-toolbar">
-            <div class="btn-toolbar box-gray-dark" id="toolbar">
-                <div id="player-controls" class="btn-group">
-                    <label>Video</label>
-                    <button id="buttonPlayerPlay" class="btn btn-small btn-inverse" type="button" onclick="buttonPlayerPlay()">Play</button>
-                    <button id="buttonPlayerSpeed" class="btn btn-small btn-inverse" type="button" onclick="buttonPlayerSpeed()" data-toggle="button">Speed</button>
-                    <!--<button id="buttonPlayerFullscreen" class="btn btn-small btn-inverse" type="button" onclick="buttonPlayerFullscreen()" data-toggle="button">Fullscreen</button>-->
-                    <button id="buttonPlayerMute" class="btn btn-small btn-inverse" type="button" onclick="buttonPlayerMute()" data-toggle="button">Mute</button>
-                </div>
-                <div id="slides-controls" class="btn-group">
-                    <label>Slide</label>
-                    <button id="buttonSlidePrev" class="btn btn-small btn-inverse disabled" type="button" onclick="buttonSlidePrev()">Prev</button>
-                    <button id="buttonSlideCurrent" class="btn btn-small btn-inverse disabled" type="button" onclick="buttonSlideCurrent()">Current</button>
-                    <button id="buttonSlideNext" class="btn btn-small btn-inverse" type="button" onclick="buttonSlideNext()">Next</button>
-                    <!--<button id="buttonSlideFullscreen" class="btn btn-small btn-inverse" type="button" onclick="buttonSlideFullscreen()" data-toggle="button">Fullscreen</button>-->
-                </div>
-                <div id="navigation-controls" class="btn-group">
-                    <button id="buttonNavigationToggle" class="btn btn-small btn-inverse active" type="button" onclick="buttonNavigationToggle()">Navigation</button>
-                </div>
-                <div id="help-controls" class="btn-group">
-                    <button id="buttonHelpToggle" class="btn btn-small btn-inverse" type="button" onclick="buttonHelpToggle()">Help</button>
-                </div>
-                <div id="layout-controls" class="btn-group">
-                    <button id="buttonLayoutSelectorToggle" class="btn btn-small btn-inverse" type="button" onclick="buttonLayoutSelectorToggle()">Layout</button>
-                    <button id="buttonFullscreenToggle" class="btn btn-small btn-inverse" type="button" onclick="buttonFullscreenToggle()">Fullscreen</button>
-                </div>
-            </div>
-        </div>
-        <div class="row box-gray-light" id="row-help">
-            <h4>Utilizzo del player</h4>
-            <p>
-                Il player video può essere controllato dai pulsanti presenti nella toolbar. I controlli permettono di avviare/fermare la riproduzione, modificare la velocità (normale/raddoppiata) e escludere l'audio.<br/>
-                La navigazione delle slide può essere effettuata in maniera indipendente dalla riproduzione del video tramite i pulsanti della toolbar. Il menu di navigazione permette di saltare al punto di interesse selezionando la minuatura della slide. <br/>
-                Il layout del player può essere modificato, portando in primo piano video oppure slide, e passando alla modalità fullscreen.<br/>
-                La barra di avanzamento sul fondo della pagina riporta la posizione corrente nel video e la posizione relativa delle slide.
-            </p>
-        </div>
-        <div class="row box-gray-light" id="row-layout">
-            <ul class="thumbnails layout-ul">
-                <li>
-                    <a class="thumbnail active" id="layoutSelectorBoth" href="javascript:layoutChange('both');">
-                        <img src="images/layout-both.png" />
-                        <span>Video + Slide</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="thumbnail" id="layoutSelectorPlayerFull" href="javascript:layoutChange('fullPlayer');">
-                        <img src="images/layout-video.png" />
-                        <span>Video</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="thumbnail" id="layoutSelectorSlideFull" href="javascript:layoutChange('fullSlide');">
-                        <img src="images/layout-slide.png" />
-                        <span>Slide</span>
-                    </a>
-                </li>
+    <div class="row box-gray-light" id="row-help">
+        <h4>Utilizzo del player</h4>
+        <p>
+            Il video può essere controllato dai pulsanti posizionati sotto lo stesso, che permettono di avviare/fermare la riproduzione, modificare la velocità (1x, 1.3x, 2x), escludere l'audio, saltare indietro (&lt;) o in avanti (&gt;) di 5 secondi.<br/>
+            La navigazione delle slide può essere effettuata in maniera indipendente dalla riproduzione del video tramite i pulsanti sotto la slides. <br/>
+            Il layout può essere modificato con i pulsanti sulla barra soprastante, mostrando solo il video (ingrandito), solo la slide corrente (ingrandite) o entrambi, e passando alla modalità fullscreen.<br/>
+            La barra di avanzamento (sotto) riporta la posizione corrente nel video. Le barre bianche verticali indicano i cambi di slide.<br/>
+            Le miniature delle slides poste in fondo permettono di saltare al punto della lezione in cui la slide selezionata è mostrata.
+        </p>
+    </div>
+    <div class="row box-gray-light" id="row-about">
+        <h4>About Lode</h4>
+        <p>
+            Lode (Lectures On DEmand) è un software di acquisizione e riproduzione di videolezioni sviluppato da <a href='http://latemar.science.unitn.it'>Marco Ronchetti</a> e collaboratori presso l'Università degli Studi di Trento.<br/>
+            Per dettagli si veda <a href='http://latemar.science.unitn.it/LODE'>il sito di progetto</a>
+        </p>
+    </div>
+        <!-- controller -->
+    <div class="row">
+        <div class="btn-toolbar box-blue" id="toolbar2">
+            <div id="player-controls" class="btn-group">
+                <button id="buttonPlayerPlay" class="btn btn-small btn-inverse glyphicon glyphicon-play" type="button" onclick="buttonPlayerPlay()"></button>
+                <button id="buttonPlayerSpeed10" class="btn btn-small btn-inverse glyphicon active" type="button" onclick="playerSpeed(1.0)" data-toggle="button">1.0x</button>
+                <button id="buttonPlayerSpeed13" class="btn btn-small btn-inverse glyphicon" type="button" onclick="playerSpeed(1.3)" data-toggle="button">1.3x</button>
+                <button id="buttonPlayerSpeed20" class="btn btn-small btn-inverse glyphicon" type="button" onclick="playerSpeed(2.0)" data-toggle="button">2.0x</button>
+                <!--button id="buttonPlayerSkipFastBack" class="btn btn-small btn-inverse glyphicon glyphicon-step-backward" type="button" onclick="playerRelativeJump(-30)" data-toggle="button"></button-->
+                <button id="buttonPlayerSkipBack" class="btn btn-small btn-inverse glyphicon glyphicon-backward" type="button" onclick="playerRelativeJump(-15)" data-toggle="button"></button>
+                <button id="buttonPlayerSkipAhead" class="btn btn-small btn-inverse glyphicon glyphicon-forward" type="button" onclick="playerRelativeJump(15)" data-toggle="button"></button>
+                <!--button-- id="buttonPlayerSkipFastAhead" class="btn btn-small btn-inverse glyphicon glyphicon-step-forward" type="button" onclick="playerRelativeJump(30)" data-toggle="button"></button-->
 
-            </ul>
-        </div>
-        <div class="row" id="row-navigation">
-            <div class="span12 box-gray-light" id="cell-navigation">
-                <div class = 'iosSlider'>
-                    <div class="slider" id="navigation">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row" id="row-content">
-            <div class="span6" id="cell-player">
-                <video style="height: 100%; width:100%;" id="camplayer">
-                </video>
-            </div>
-            <div class="span6" id="cell-player2">
-                <video style="height: 100%; width:100%;" id="pcplayer">
-                </video>
-            </div>
-            <!--div class="span6" id="cell-slides">
-                <div id="slides" class="box-gray">
+                <button id="buttonPlayerMute" class="btn btn-small btn-inverse glyphicon glyphicon-volume-up" type="button" onclick="buttonPlayerMute()" data-toggle="button"></button>
 
-                </div>
-            </div-->
+                <button id="buttonLayoutMinus" class="btn btn-small btn-inverse glyphicon glyphicon-minus" type="button" onclick="layoutMinus()" data-toggle="button"></button>
+                <button id="buttonLayoutPlus" class="btn btn-small btn-inverse glyphicon glyphicon-plus" type="button" onclick="layoutPlus()" data-toggle="button"></button>
+
+            </div>
         </div>
-        <div class="box-gray-dark" id="row-progress">
+    </div>
+    <!-- players -->
+    <div class="row">
+        <!-- CAM player -->
+        <div class="col-md-3" id="cell-player-cam">
+            <video style="height: 100%; width:100%;" id="camplayer">
+            </video>
+        </div>
+        <!-- PC player -->
+        <div class="col-md-9" id="cell-player-pc">
+            <video style="height: 100%; width:100%;" id="pcplayer">
+            </video>
+        </div>
+    </div>
+    <div class="row"><!-- progress bar -->
+        <div class="box-blue" id="row-progress">
             <div class="row">
                 <div id="cell-progress-bar"  class="span10">
                     <div id="progress-bar">
@@ -834,41 +455,13 @@
             </div>
         </div>
     </div>
-
 </div>
+
 <footer class="footer">
     <div class="container" id="footer">
         <p>LODE &copy;Marco Ronchetti - HTML5 Frontend </p>
     </div>
 </footer>
-
-<script type="text/javascript">
-    function dumpObject(obj, maxDepth) {
-        var dump = function(obj, name, depth, tab){
-            if (depth > maxDepth) {
-                return name + ' - Max depth\n';
-            }
-
-            if (typeof(obj) == 'object') {
-                var child = null;
-                var output = tab + name + '\n';
-                tab += '\t';
-                for(var item in obj){
-                    child = obj[item];
-                    if (typeof(child) == 'object') {
-                        output += dump(child, item, depth + 1, tab);
-                    } else {
-                        output += tab + item + ': ' + child + '\n';
-                    }
-                }
-            }
-            return output;
-        }
-
-        return dump(obj, '', 0, '');
-    }
-</script>
-
 
 </body>
 </html>
