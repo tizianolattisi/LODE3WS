@@ -10,6 +10,13 @@
     <link href="css/bootstrap.css" rel="stylesheet">
     <link href="css/custom.css" rel="stylesheet">
 
+    <script type="text/javascript" src="js/tracker.js"></script>
+    <script type="text/javascript" >
+        // TODO: catch id and name
+        //var sessionId = '123';
+        var userName = 'pippo';
+    </script>
+
     <script type="text/javascript" >
 
         var data = new Object();
@@ -131,15 +138,15 @@
                 var timeDrag = false;	/* check for drag event */
                 $('#progress-bar').on('mousedown', function(e) {
                     timeDrag = true;
-                    //trackEvent("player", "jumpfrom", pcVideo[0].currentTime);
+                    trackEvent("player", "jumpfrom", pcVideo[0].currentTime);
                     updatebar(e.pageX);
-                    //trackEvent("player", "jumpstartdrag", pcVideo[0].currentTime);
+                    trackEvent("player", "jumpstartdrag", pcVideo[0].currentTime);
                 });
                 $(document).on('mouseup', function(e) {
                     if(timeDrag) {
                         timeDrag = false;
                         updatebar(e.pageX);
-                        //trackEvent("player", "jumpdrop", pcVideo[0].currentTime);
+                        trackEvent("player", "jumpdrop", pcVideo[0].currentTime);
                     }
                 });
                 $(document).on('mousemove', function(e) {
@@ -197,12 +204,12 @@
 
         // Player functions
         function playerPlay() {
-            //trackEvent("player", "play");
+            trackEvent("player", "play");
             getCamPlayer().play();
             return getPCPlayer().play();
         }
         function playerPause() {
-            //trackEvent("player", "pause");
+            trackEvent("player", "pause");
             getCamPlayer().pause();
             return getPCPlayer().pause();
         }
@@ -292,7 +299,7 @@
         function playerMuteToggle() {
             getPCPlayer().muted = !getPCPlayer().muted
             getCamPlayer().muted = !getCamPlayer().muted
-            //trackEvent("player", "mute", getCamPlayer().muted && "off" || "on");
+            trackEvent("player", "mute", getCamPlayer().muted && "off" || "on");
             return getPCPlayer().muted
         }
         function buttonPlayerMute() {
