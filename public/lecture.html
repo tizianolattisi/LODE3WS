@@ -71,6 +71,11 @@
                 // track lecture
                 trackEvent("title", data.lecture, data.course, navigator.userAgent)
 
+                // I'm alive
+                window.setInterval(function() {
+                     trackEvent("alive", getCamPlayer().currentTime);
+                }, 300000);
+
                 /*                  *
                  *      VIDEO       *
                  *                  */
