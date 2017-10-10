@@ -93,6 +93,8 @@
                 var pcPlayer = getPCPlayer();
                 camPlayer.setAttribute("src", data.camvideo.name+".mp4");
                 pcPlayer.setAttribute("src", data.pcvideo.name+".mp4");
+                var camVideo = $("#camplayer");
+
 
                 $('#progress-time-duration').text(timeFormat(data.camvideo.duration));
 
@@ -102,16 +104,16 @@
                 //video controls and callback
 
                 //set progress bar and controls
-                getPCPlayer().on('loadedmetadata', function() {
+                camVideo.on('loadedmetadata', function() {
                     $('#progress-time-current').text(timeFormat(0));
                     getPCPlayer().removeAttribute("controls");
                 });
-                getPCPlayer().on('loadeddata', function() {
+                camVideo.on('loadeddata', function() {
                     //resize player with actual dimensions
                     //fixPlayerSize();
                 });
                 //display current video play time
-                getPCPlayer().on('timeupdate', function() {
+                camVideo.on('timeupdate', function() {
                     var currentPos = getPCPlayer().currentTime;
                     var maxduration = getPCPlayer().duration;
                     var perc = 100 * currentPos / maxduration;
@@ -119,18 +121,18 @@
                     $('#progress-time-current').text(timeFormat(currentPos));
                 });
 
-                getPCPlayer().on('click', function() {
+                camVideo.on('click', function() {
                     playerPlayPause();
                 } );
 
                 //video event
-                getPCPlayer().on('ended', function() {
+                camVideo.on('ended', function() {
                     playerPause();
                 });
-                getPCPlayer().on('play', function() {
+                camVideo.on('play', function() {
                     playPauseButtonCallback();
                 });
-                getPCPlayer().on('pause', function() {
+                camVideo.on('pause', function() {
                     playPauseButtonCallback();
                 });
 
@@ -205,12 +207,12 @@
 
         // Player functions
         function playerPlay() {
-            trackEvent("play", getCamPlayer().currentTime);
+            trackEvent("play", getCamPlayer().currentTime, Date.now());
             getCamPlayer().play();
             return getPCPlayer().play();
         }
         function playerPause() {
-            trackEvent("pause", getCamPlayer().currentTime);
+            trackEvent("pause", getCamPlayer().currentTime, Date.now());
             getCamPlayer().pause();
             return getPCPlayer().pause();
         }
