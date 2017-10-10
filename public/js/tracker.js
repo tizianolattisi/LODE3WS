@@ -29,8 +29,8 @@ function trackEvent(type, value1, value2, value3){
     var socket = io(url);
     socket.emit('log', {
         type: type,
-        sessionId: sessionId,
-        userName: userName,
+        session_id: sessionId,
+        user_id: userName,
         value1: value1,
         value2: value2,
         value3: value3,
