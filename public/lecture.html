@@ -90,11 +90,9 @@
 
                 //load video, check capabilities
                 var camPlayer = getCamPlayer();
-                camPlayer.setAttribute("src", data.camvideo.name+".mp4");
-                var camVideo = $("#camplayer");
                 var pcPlayer = getPCPlayer();
+                camPlayer.setAttribute("src", data.camvideo.name+".mp4");
                 pcPlayer.setAttribute("src", data.pcvideo.name+".mp4");
-                var pcVideo = $("#pcplayer");
 
                 $('#progress-time-duration').text(timeFormat(data.camvideo.duration));
 
@@ -104,35 +102,35 @@
                 //video controls and callback
 
                 //set progress bar and controls
-                pcVideo.on('loadedmetadata', function() {
+                getPCPlayer().on('loadedmetadata', function() {
                     $('#progress-time-current').text(timeFormat(0));
-                    pcVideo[0].removeAttribute("controls");
+                    getPCPlayer().removeAttribute("controls");
                 });
-                pcVideo.on('loadeddata', function() {
+                getPCPlayer().on('loadeddata', function() {
                     //resize player with actual dimensions
                     //fixPlayerSize();
                 });
                 //display current video play time
-                pcVideo.on('timeupdate', function() {
-                    var currentPos = pcVideo[0].currentTime;
-                    var maxduration = pcVideo[0].duration;
+                getPCPlayer().on('timeupdate', function() {
+                    var currentPos = getPCPlayer().currentTime;
+                    var maxduration = getPCPlayer().duration;
                     var perc = 100 * currentPos / maxduration;
                     $('#progress-bar-time').css('width',perc+'%');
                     $('#progress-time-current').text(timeFormat(currentPos));
                 });
 
-                pcVideo.on('click', function() {
+                getPCPlayer().on('click', function() {
                     playerPlayPause();
                 } );
 
                 //video event
-                pcVideo.on('ended', function() {
+                getPCPlayer().on('ended', function() {
                     playerPause();
                 });
-                pcVideo.on('play', function() {
+                getPCPlayer().on('play', function() {
                     playPauseButtonCallback();
                 });
-                pcVideo.on('pause', function() {
+                getPCPlayer().on('pause', function() {
                     playPauseButtonCallback();
                 });
 
@@ -142,14 +140,14 @@
                 var jumpFrom = null;
                 $('#progress-bar').on('mousedown', function(e) {
                     timeDrag = true;
-                    jumpFrom = camVideo[0].currentTime;
+                    jumpFrom = getCamPlayer().currentTime;
                     updatebar(e.pageX);
                 });
                 $(document).on('mouseup', function(e) {
                     if(timeDrag) {
                         timeDrag = false;
                         updatebar(e.pageX);
-                        trackEvent("jump", jumpFrom, camVideo[0].currentTime, "click_or_drag");
+                        trackEvent("jump", jumpFrom, getCamPlayer().currentTime, "click_or_drag");
                     }
                 });
                 $(document).on('mousemove', function(e) {
@@ -163,7 +161,7 @@
                     //calculate drag position
                     //and update video currenttime
                     //as well as progress bar
-                    var maxduration = pcVideo[0].duration;
+                    var maxduration = getPCPlayer().duration;
                     var position = x - progress.offset().left;
                     var percentage = 100 * position / progress.width();
                     if(percentage > 100) {
@@ -174,8 +172,8 @@
                     }
                     $('#progress-bar-time').css('width',percentage+'%');
                     var currentTime = maxduration * percentage / 100;
-                    pcVideo[0].currentTime = currentTime;
-                    camVideo[0].currentTime = currentTime;
+                    getPCPlayer().currentTime = currentTime;
+                    getCamPlayer().currentTime = currentTime;
                 };
             });
         });
@@ -207,18 +205,17 @@
 
         // Player functions
         function playerPlay() {
-            trackEvent("play", camVideo[0].currentTime);
+            trackEvent("play", getCamPlayer().currentTime);
             getCamPlayer().play();
             return getPCPlayer().play();
         }
         function playerPause() {
-            trackEvent("pause", camVideo[0].currentTime);
+            trackEvent("pause", getCamPlayer().currentTime);
             getCamPlayer().pause();
             return getPCPlayer().pause();
         }
         function playerPlayPause() {
-            var pcVideo = getPCPlayer();
-            if(pcVideo.paused || pcVideo.ended) {
+            if(getPCPlayer().paused || getPCPlayer().ended) {
                 playerPlay();
             }
             else {
@@ -227,6 +224,7 @@
             playPauseButtonCallback();
         }
         function playerSpeed(factor) {
+            trackEvent("speed", getCamPlayer().currentTime, factor);
             if ( factor==1.0 ) {
                 $("#buttonPlayerSpeed10").addClass("active");
                 $("#buttonPlayerSpeed13").removeClass("active");
@@ -241,21 +239,18 @@
                 $("#buttonPlayerSpeed13").removeClass("active");
                 $("#buttonPlayerSpeed20").addClass("active");
             }
-            var camVideo = getCamPlayer();
             var playbackRate = parseFloat(factor);
-            camVideo.defaultPlaybackRate = playbackRate;
-            camVideo.playbackRate = playbackRate;
-            var pcVideo = getPCPlayer();
-            pcVideo.defaultPlaybackRate = playbackRate;
-            pcVideo.playbackRate = playbackRate;
-            camVideo.play();
-            pcVideo.play();
+            getCamPlayer().defaultPlaybackRate = playbackRate;
+            getCamPlayer().playbackRate = playbackRate;
+            getPCPlayer().defaultPlaybackRate = playbackRate;
+            getPCPlayer().playbackRate = playbackRate;
+            getCamPlayer().play();
+            getPCPlayer().play();
         }
         function playerRelativeJump(delta) {
             try {
-                var video = getPCPlayer();
-                var currentPos = video.currentTime;
-                var maxduration = video.duration;
+                var currentPos = getPCPlayer().currentTime;
+                var maxduration = getPCPlayer().duration;
                 currentPos = currentPos + delta;
                 if (currentPos < 0)
                     currentPos = 0;
@@ -269,12 +264,10 @@
         function playerJump(pos) {
             pos=(+pos)+(+0.1);
             var newPos = parseFloat(pos);
-            var camVideo = getCamPlayer();
-            camVideo.currentTime = newPos;
-            var pcVideo = getPCPlayer();
-            pcVideo.currentTime = newPos;
-            camVideo.play();
-            pcVideo.play();
+            getCamPlayer().currentTime = newPos;
+            getPCPlayer().currentTime = newPos;
+            getCamPlayer().play();
+            getPCPlayer().play();
         }
 
         function buttonPlayerPlay() {
@@ -285,8 +278,7 @@
         }
 
         function playPauseButtonCallback() {
-            var pcVideo = getPCPlayer();
-            if(pcVideo.paused || pcVideo.ended) {
+            if(getPCPlayer().paused || getPCPlayer().ended) {
                 $("#buttonPlayerPlay").removeClass("active");
                 $("#buttonPlayerPlay").addClass("glyphicon-play");
                 $("#buttonPlayerPlay").removeClass("glyphicon-pause");
@@ -302,7 +294,7 @@
         function playerMuteToggle() {
             getPCPlayer().muted = !getPCPlayer().muted
             getCamPlayer().muted = !getCamPlayer().muted
-            trackEvent("mute", camVideo[0].currentTime, getCamPlayer().muted && "off" || "on");
+            trackEvent("mute", getCamPlayer().currentTime, getCamPlayer().muted && "off" || "on");
             return getPCPlayer().muted
         }
         function buttonPlayerMute() {
@@ -326,6 +318,7 @@
                 if( className.startsWith('col-md-') ){
                     var n = parseInt(className.substring(7));
                     if( (d>0 && n<11) || (d<0 && n>1) ){
+                        trackEvent("layout", getCamPlayer().currentTime, n+d);
                         $("#cell-player-pc").removeClass('col-md-'+n);
                         $("#cell-player-pc").addClass('col-md-'+(n+d));
                         $("#cell-player-cam").removeClass('col-md-'+(12-n));
