@@ -22,8 +22,8 @@
 var sessionId = sessionIdMaker();
 var userName = null;
 
-function trackEvent(type, value1, value2){
-    var href = window.location.href;
+function trackEvent(type, value1, value2, value3){
+    var href = window.location.href;  //   http://latemar/trackevent
     var arr = href.split("/");
     var url = arr[0] + "//" + arr[2] + "/trackevent";
     var socket = io(url);
@@ -33,6 +33,7 @@ function trackEvent(type, value1, value2){
         userName: userName,
         value1: value1,
         value2: value2,
+        value3: value3,
         timestamp: new Date()
     });
 }

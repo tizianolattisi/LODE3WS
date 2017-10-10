@@ -68,6 +68,8 @@
                 //replace page title
                 document.title = "LODE: "+data.course+" - "+data.lecture;
 
+                // track lecture
+                trackEvent("title", data.lecture, data.course, navigator.userAgent)
 
                 /*                  *
                  *      VIDEO       *
@@ -137,17 +139,17 @@
                 //VIDEO PROGRESS BAR
                 //when video timebar clicked
                 var timeDrag = false;	/* check for drag event */
+                var jumpFrom = null;
                 $('#progress-bar').on('mousedown', function(e) {
                     timeDrag = true;
-                    trackEvent("player", "jumpfrom", pcVideo[0].currentTime);
+                    jumpFrom = camVideo[0].currentTime;
                     updatebar(e.pageX);
-                    trackEvent("player", "jumpstartdrag", pcVideo[0].currentTime);
                 });
                 $(document).on('mouseup', function(e) {
                     if(timeDrag) {
                         timeDrag = false;
                         updatebar(e.pageX);
-                        trackEvent("player", "jumpdrop", pcVideo[0].currentTime);
+                        trackEvent("jump", jumpFrom, camVideo[0].currentTime, "click_or_drag");
                     }
                 });
                 $(document).on('mousemove', function(e) {
@@ -205,12 +207,12 @@
 
         // Player functions
         function playerPlay() {
-            trackEvent("player", "play");
+            trackEvent("play", camVideo[0].currentTime);
             getCamPlayer().play();
             return getPCPlayer().play();
         }
         function playerPause() {
-            trackEvent("player", "pause");
+            trackEvent("pause", camVideo[0].currentTime);
             getCamPlayer().pause();
             return getPCPlayer().pause();
         }
@@ -300,7 +302,7 @@
         function playerMuteToggle() {
             getPCPlayer().muted = !getPCPlayer().muted
             getCamPlayer().muted = !getCamPlayer().muted
-            trackEvent("player", "mute", getCamPlayer().muted && "off" || "on");
+            trackEvent("mute", camVideo[0].currentTime, getCamPlayer().muted && "off" || "on");
             return getPCPlayer().muted
         }
         function buttonPlayerMute() {
